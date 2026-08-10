@@ -9,10 +9,8 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Inizializziamo l'app in 'tenant' (inquilino) di default per sicurezza
   const [viewMode, setViewMode] = useState<'owner' | 'tenant'>('tenant');
   
-  // Stati per il controllo PIN Proprietario (PIN preimpostato: "1234")
   const [showPinModal, setShowPinModal] = useState(false);
   const [enteredPin, setEnteredPin] = useState("");
   const CORRECT_PIN = "021296";
@@ -70,7 +68,6 @@ export default function App() {
     let publicUrl = paymentToUpdate.utility_file_url;
     const fileInput = (document.getElementById('pdf-file-input') as HTMLInputElement)?.files?.[0];
 
-    // Caricamento automatico del file su Supabase Storage e generazione URL pubblico
     if (fileInput) {
       const fileName = `bolletta_${monthId}_${Date.now()}.pdf`;
       const { error: uploadError } = await supabase.storage
@@ -112,7 +109,7 @@ export default function App() {
         }
       ]);
 
-      alert("Bolletta caricata e collegata con successo in automatico!");
+      alert("Documento caricato e collegato con successo in automatico!");
       fetchData();
       setBillForm({ type: "Luce", billAmount: "", tenantShare: "", selectedMonthId: "", fileName: null });
       const fileInputEl = document.getElementById('pdf-file-input') as HTMLInputElement;
@@ -156,7 +153,7 @@ export default function App() {
     doc.text("Canone di locazione (Contratto Transitorio)", 20, 97);
     doc.text(`${Number(payment.rent_amount).toFixed(2)} €`, 160, 97);
 
-    doc.text("Rimborso Spese Utenze / Bollette", 20, 107);
+    doc.text("Rimborso Spese Utenze / Documenti", 20, 107);
     doc.text(`${Number(payment.utility_amount).toFixed(2)} €`, 160, 107);
 
     doc.line(20, 115, 190, 115);
@@ -200,7 +197,6 @@ export default function App() {
     <div style={{ fontFamily: 'sans-serif', backgroundColor: '#f4f6f8', minHeight: '100vh', padding: '24px' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
-        {/* Header */}
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', backgroundColor: 'white', padding: '16px 20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <div>
             <h1 style={{ fontSize: '22px', margin: 0, color: '#1a202c' }}>
@@ -228,7 +224,6 @@ export default function App() {
           </div>
         </header>
 
-        {/* MODALE PIN */}
         {showPinModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
             <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', width: '320px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
@@ -258,7 +253,6 @@ export default function App() {
           </div>
         )}
 
-        {/* ================= VISTA PROPRIETARIO ================= */}
         {viewMode === 'owner' && (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
@@ -282,13 +276,13 @@ export default function App() {
               <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                   <Zap color="#d69e2e" size={20} />
-                  <h2 style={{ fontSize: '18px', margin: 0 }}>Carica Nuova Bolletta PDF</h2>
+                  <h2 style={{ fontSize: '18px', margin: 0 }}>Carica Nuova Bolletta / Documento PDF</h2>
                 </div>
                 
                 <form onSubmit={handleApplyUtility} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div>
-                      <label style={{ fontSize: '12px', color: '#4a5568' }}>Tipo Utenza</label>
+                      <label style={{ fontSize: '12px', color: '#4a5568' }}>Tipo Utenza / Voce</label>
                       <select 
                         value={billForm.type} 
                         onChange={e => setBillForm({ ...billForm, type: e.target.value })}
@@ -298,6 +292,7 @@ export default function App() {
                         <option value="Gas">Gas</option>
                         <option value="Acqua">Acqua</option>
                         <option value="Internet">Internet</option>
+                        <option value="Assicurazione Casa">Assicurazione Casa</option>
                       </select>
                     </div>
 
@@ -318,7 +313,7 @@ export default function App() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div>
-                      <label style={{ fontSize: '12px', color: '#4a5568' }}>Totale Bolletta (€)</label>
+                      <label style={{ fontSize: '12px', color: '#4a5568' }}>Totale Documento (€)</label>
                       <input 
                         type="number" 
                         step="0.01" 
@@ -368,7 +363,7 @@ export default function App() {
                     <th style={{ padding: '12px 8px' }}>Mese</th>
                     <th style={{ padding: '12px 8px' }}>Canone</th>
                     <th style={{ padding: '12px 8px' }}>Utenze</th>
-                    <th style={{ padding: '12px 8px' }}>Bolletta</th>
+                    <th style={{ padding: '12px 8px' }}>Allegato</th>
                     <th style={{ padding: '12px 8px' }}>Totale</th>
                     <th style={{ padding: '12px 8px' }}>Stato</th>
                     <th style={{ padding: '12px 8px', textAlign: 'right' }}>Azione / Ricevuta</th>
@@ -430,7 +425,6 @@ export default function App() {
           </>
         )}
 
-        {/* ================= VISTA INQUILINO ================= */}
         {viewMode === 'tenant' && (
           <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #edf2f7', paddingBottom: '12px' }}>
@@ -446,8 +440,8 @@ export default function App() {
                 <tr style={{ borderBottom: '2px solid #edf2f7', color: '#718096', fontSize: '14px' }}>
                   <th style={{ padding: '12px 8px' }}>Mese</th>
                   <th style={{ padding: '12px 8px' }}>Canone</th>
-                  <th style={{ padding: '12px 8px' }}>Utenze</th>
-                  <th style={{ padding: '12px 8px' }}>Bolletta</th>
+                  <th style={{ padding: '12px 8px' }}>Utenze / Extra</th>
+                  <th style={{ padding: '12px 8px' }}>Documento</th>
                   <th style={{ padding: '12px 8px' }}>Totale</th>
                   <th style={{ padding: '12px 8px' }}>Stato Pagamento</th>
                   <th style={{ padding: '12px 8px', textAlign: 'right' }}>Scarica Ricevuta</th>
@@ -460,7 +454,6 @@ export default function App() {
                     <td style={{ padding: '14px 8px' }}>€ {p.rent_amount}</td>
                     <td style={{ padding: '14px 8px' }}>{p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}</td>
                     
-                    {/* Colonna Bolletta PDF */}
                     <td style={{ padding: '14px 8px' }}>
                       {p.utility_file_url ? (
                         <a 
@@ -499,7 +492,6 @@ export default function App() {
               </tbody>
             </table>
 
-            {/* SEZIONE DOCUMENTI IMMOBILE */}
             <div style={{ marginTop: '30px', borderTop: '1px solid #edf2f7', paddingTop: '20px' }}>
               <h3 style={{ fontSize: '16px', margin: '0 0 12px 0', color: '#2d3748', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Paperclip size={18} /> Documenti dell'Immobile
