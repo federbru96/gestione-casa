@@ -154,8 +154,27 @@ export default function App() {
     doc.text("Canone di locazione (Contratto Transitorio)", 20, 97);
     doc.text(`${Number(payment.rent_amount).toFixed(2)} €`, 160, 97);
 
-    doc.text("Rimborso Spese Utenze / Documenti", 20, 107);
-    doc.text(`${Number(payment.utility_amount).toFixed(2)} €`, 160, 107);
+    // Sostituisci la parte statica delle utenze (intorno alle righe 156-158) con questo ciclo:
+
+let currentY = 107;
+
+if (payment.bills && payment.bills.length > 0) {
+  payment.bills.forEach((bill: any) => {
+    doc.text(`Utenza ${bill.utility_type}`, 20, currentY);
+    doc.text(`${Number(bill.tenant_share).toFixed(2)} €`, 160, currentY);
+    currentY += 10; // Spazia alla riga successiva per la bolletta seguente
+  });
+} else {
+  doc.text("Rimborso Spese Utenze / Documenti", 20, currentY);
+  doc.text(`${Number(payment.utility_amount || 0).toFixed(2)} €`, 160, currentY);
+  currentY += 10;
+}
+
+// Sposta la linea di chiusura e il totale in base a quante bollette sono state stampate
+doc.line(20, currentY + 5, 190, currentY + 5);
+doc.setFontSize(12);
+doc.text("TOTALE RICEVUTO:", 20, currentY + 15);
+doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
 
     doc.line(20, 115, 190, 115);
     doc.setFontSize(12);
