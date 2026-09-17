@@ -37,22 +37,31 @@ export default function App() {
       if (tenantData) setContract(tenantData);
 
       // Scarichiamo i pagamenti e facciamo il join con la tabella delle bollette
-      const { data: paymentsData, error: pErr } = await supabase
-        .from('payments')
-        .select('*, bills(*)')
-        .order('id');
-        
-      if (pErr) throw pErr;
-      if (paymentsData) setPayments(paymentsData);
-      
-    } catch (err: any) {
-      console.error("Errore dettagliato:", err);
-      setErrorMsg(err.message || JSON.stringify(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          setErrorMsg(null);
+    
+          const { data: tenantData, error: tErr } = await supabase.from('tenants').select('*').eq('id', 1).maybeSingle();
+          if (tErr) throw tErr;
+          if (tenantData) setContract(tenantData);
+    
+          // Questa è la riga fondamentale che include le bollette (bills) associate ad ogni mese!
+          const { data: paymentsData, error: pErr } = await supabase
+            .from('payments')
+            .select('*, bills(*)')
+            .order('id');
+            
+          if (pErr) throw pErr;
+          if (paymentsData) setPayments(paymentsData);
+          
+        } catch (err: any) {
+          console.error("Errore dettagliato:", err);
+          setErrorMsg(err.message || JSON.stringify(err));
+        } finally {
+          setLoading(false);
+        }
+      };
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setBillForm({ ...billForm, fileName: file.name });
