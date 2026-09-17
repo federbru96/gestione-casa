@@ -293,7 +293,7 @@ export default function App() {
   <option value="Gas">Gas</option>
   <option value="Acqua">Acqua</option>
   <option value="Internet">Internet</option>
-  <option value="TARI">TARI</option> {/* <-- Aggiungi questa riga */}
+  <option value="TARI">TARI</option>
   <option value="Assicurazione Casa">Assicurazione Casa</option>
 </select>
                     </div>
