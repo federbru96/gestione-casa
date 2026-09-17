@@ -36,32 +36,22 @@ export default function App() {
       if (tErr) throw tErr;
       if (tenantData) setContract(tenantData);
 
-      // Scarichiamo i pagamenti e facciamo il join con la tabella delle bollette
-      const fetchData = async () => {
-        try {
-          setLoading(true);
-          setErrorMsg(null);
-    
-          const { data: tenantData, error: tErr } = await supabase.from('tenants').select('*').eq('id', 1).maybeSingle();
-          if (tErr) throw tErr;
-          if (tenantData) setContract(tenantData);
-    
-          // Questa è la riga fondamentale che include le bollette (bills) associate ad ogni mese!
-          const { data: paymentsData, error: pErr } = await supabase
-            .from('payments')
-            .select('*, bills(*)')
-            .order('id');
-            
-          if (pErr) throw pErr;
-          if (paymentsData) setPayments(paymentsData);
-          
-        } catch (err: any) {
-          console.error("Errore dettagliato:", err);
-          setErrorMsg(err.message || JSON.stringify(err));
-        } finally {
-          setLoading(false);
-        }
-      };
+      const { data: paymentsData, error: pErr } = await supabase
+        .from('payments')
+        .select('*, bills(*)')
+        .order('id');
+        
+      if (pErr) throw pErr;
+      if (paymentsData) setPayments(paymentsData);
+      
+    } catch (err: any) {
+      console.error("Errore dettagliato:", err);
+      setErrorMsg(err.message || JSON.stringify(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setBillForm({ ...billForm, fileName: file.name });
@@ -137,6 +127,18 @@ export default function App() {
     }
   };
 
+  const togglePaymentStatus = async (id: number, currentStatus: string) => {
+    const newStatus = currentStatus === "Pagato" ? "In attesa" : "Pagato";
+    const payDate = newStatus === "Pagato" ? new Date().toISOString().split('T')[0] : null;
+
+    const { error } = await supabase
+      .from('payments')
+      .update({ status: newStatus, pay_date: payDate })
+      .eq('id', id);
+
+    if (!error) fetchData();
+  };
+
   const generatePDF = (payment: any) => {
     const doc = new jsPDF();
     
@@ -159,36 +161,28 @@ export default function App() {
     doc.text("Canone di locazione (Contratto Transitorio)", 20, 97);
     doc.text(`${Number(payment.rent_amount).toFixed(2)} €`, 160, 97);
 
-    // Sostituisci la parte statica delle utenze (intorno alle righe 156-158) con questo ciclo:
+    let currentY = 107;
 
-let currentY = 107;
+    if (payment.bills && payment.bills.length > 0) {
+      payment.bills.forEach((bill: any) => {
+        doc.text(`Utenza ${bill.utility_type}`, 20, currentY);
+        doc.text(`${Number(bill.tenant_share).toFixed(2)} €`, 160, currentY);
+        currentY += 10;
+      });
+    } else {
+      doc.text("Rimborso Spese Utenze / Documenti", 20, currentY);
+      doc.text(`${Number(payment.utility_amount || 0).toFixed(2)} €`, 160, currentY);
+      currentY += 10;
+    }
 
-if (payment.bills && payment.bills.length > 0) {
-  payment.bills.forEach((bill: any) => {
-    doc.text(`Utenza ${bill.utility_type}`, 20, currentY);
-    doc.text(`${Number(bill.tenant_share).toFixed(2)} €`, 160, currentY);
-    currentY += 10; // Spazia alla riga successiva per la bolletta seguente
-  });
-} else {
-  doc.text("Rimborso Spese Utenze / Documenti", 20, currentY);
-  doc.text(`${Number(payment.utility_amount || 0).toFixed(2)} €`, 160, currentY);
-  currentY += 10;
-}
-
-// Sposta la linea di chiusura e il totale in base a quante bollette sono state stampate
-doc.line(20, currentY + 5, 190, currentY + 5);
-doc.setFontSize(12);
-doc.text("TOTALE RICEVUTO:", 20, currentY + 15);
-doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
-
-    doc.line(20, 115, 190, 115);
+    doc.line(20, currentY + 5, 190, currentY + 5);
     doc.setFontSize(12);
-    doc.text("TOTALE RICEVUTO:", 20, 125);
-    doc.text(`${Number(payment.total).toFixed(2)} €`, 160, 125);
+    doc.text("TOTALE RICEVUTO:", 20, currentY + 15);
+    doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
 
     doc.setFontSize(9);
-    doc.text("Pagamento effettuato a mezzo bonifico bancario.", 20, 145);
-    doc.text("Imposta di bollo da 2,00€ assolta sull'originale se dovuta.", 20, 152);
+    doc.text("Pagamento effettuato a mezzo bonifico bancario.", 20, currentY + 35);
+    doc.text("Imposta di bollo da 2,00€ assolta sull'originale se dovuta.", 20, currentY + 42);
 
     doc.save(`Ricevuta_${contract?.tenant_name.replace(" ", "_")}_${payment.month.replace(" ", "_")}.pdf`);
   };
@@ -309,17 +303,17 @@ doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
                     <div>
                       <label style={{ fontSize: '12px', color: '#4a5568' }}>Tipo Utenza / Voce</label>
                       <select 
-  value={billForm.type} 
-  onChange={e => setBillForm({ ...billForm, type: e.target.value })}
-  style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e0' }}
->
-  <option value="Luce">Luce</option>
-  <option value="Gas">Gas</option>
-  <option value="Acqua">Acqua</option>
-  <option value="Internet">Internet</option>
-  <option value="TARI">TARI</option>
-  <option value="Assicurazione Casa">Assicurazione Casa</option>
-</select>
+                        value={billForm.type} 
+                        onChange={e => setBillForm({ ...billForm, type: e.target.value })}
+                        style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e0' }}
+                      >
+                        <option value="Luce">Luce</option>
+                        <option value="Gas">Gas</option>
+                        <option value="Acqua">Acqua</option>
+                        <option value="Internet">Internet</option>
+                        <option value="TARI">TARI</option>
+                        <option value="Assicurazione Casa">Assicurazione Casa</option>
+                      </select>
                     </div>
 
                     <div>
@@ -402,25 +396,34 @@ doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
                       <td style={{ padding: '12px 8px' }}>€ {p.rent_amount}</td>
                       <td style={{ padding: '12px 8px' }}>€ {p.utility_amount}</td>
                       <td style={{ padding: '12px 8px' }}>
-                      <td style={{ padding: '12px 8px' }}>
-  {p.bills && p.bills.length > 0 ? (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      {p.bills.map((b: any, idx: number) => (
-        <a 
-          key={idx}
-          href={b.file_url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#2b6cb0', textDecoration: 'none' }}
-        >
-          <Paperclip size={12} /> {b.utility_type} (€ {b.tenant_share})
-        </a>
-      ))}
-    </div>
-  ) : (
-    <span style={{ color: '#a0aec0', fontSize: '12px' }}>—</span>
-  )}
-</td>
+                        {((p.bills && p.bills.length > 0) || p.utility_file_url) ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {p.bills && p.bills.map((b: any, idx: number) => (
+                              <a 
+                                key={idx}
+                                href={b.file_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#2b6cb0', textDecoration: 'none' }}
+                              >
+                                <Paperclip size={12} /> {b.utility_type} (€ {b.tenant_share})
+                              </a>
+                            ))}
+                            {p.utility_file_url && (!p.bills || !p.bills.some((b: any) => b.file_url === p.utility_file_url)) && (
+                              <a 
+                                href={p.utility_file_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#2b6cb0', textDecoration: 'none' }}
+                              >
+                                <Paperclip size={12} /> Documento Precedente
+                              </a>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: '#a0aec0', fontSize: '12px' }}>—</span>
+                        )}
+                      </td>
                       <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>€ {p.total}</td>
                       <td style={{ padding: '12px 8px' }}>
                         <span 
@@ -487,25 +490,34 @@ doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
                     <td style={{ padding: '14px 8px' }}>{p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}</td>
                     
                     <td style={{ padding: '14px 8px' }}>
-                    <td style={{ padding: '14px 8px' }}>
-  {p.bills && p.bills.length > 0 ? (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      {p.bills.map((b: any, idx: number) => (
-        <a 
-          key={idx}
-          href={b.file_url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          style={{ color: '#3182ce', textDecoration: 'none', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}
-        >
-          <Paperclip size={14} /> {b.utility_type} (€ {b.tenant_share})
-        </a>
-      ))}
-    </div>
-  ) : (
-    <span style={{ color: '#a0aec0', fontSize: '12px' }}>—</span>
-  )}
-</td>
+                      {((p.bills && p.bills.length > 0) || p.utility_file_url) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {p.bills && p.bills.map((b: any, idx: number) => (
+                            <a 
+                              key={idx}
+                              href={b.file_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              style={{ color: '#3182ce', textDecoration: 'none', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}
+                            >
+                              <Paperclip size={14} /> {b.utility_type} (€ {b.tenant_share})
+                            </a>
+                          ))}
+                          {p.utility_file_url && (!p.bills || !p.bills.some((b: any) => b.file_url === p.utility_file_url)) && (
+                            <a 
+                              href={p.utility_file_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              style={{ color: '#3182ce', textDecoration: 'none', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}
+                            >
+                              <Paperclip size={14} /> Documento Precedente
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <span style={{ color: '#a0aec0', fontSize: '12px' }}>—</span>
+                      )}
+                    </td>
 
                     <td style={{ padding: '14px 8px', fontWeight: 'bold' }}>€ {p.total}</td>
                     <td style={{ padding: '14px 8px' }}>
@@ -544,17 +556,17 @@ doc.text(`${Number(payment.total).toFixed(2)} €`, 160, currentY + 15);
                   📄 Visualizza APE
                 </a>
                 <a 
-                href="https://vwsvfyneyziytdmxkxgi.supabase.co/storage/v1/object/public/documenti-immobile/VISURA%20CATASTALE.pdf" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ backgroundColor: '#edf2f7', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', color: '#2b6cb0', fontSize: '13px', fontWeight: '500', border: '1px solid #e2e8f0' }}
-              >
-                📄 Visualizza Visura Catastale
-              </a>
+                  href="https://vwsvfyneyziytdmxkxgi.supabase.co/storage/v1/object/public/documenti-immobile/VISURA%20CATASTALE.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ backgroundColor: '#edf2f7', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', color: '#2b6cb0', fontSize: '13px', fontWeight: '500', border: '1px solid #e2e8f0' }}
+                >
+                  📄 Visualizza Visura Catastale
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       </div>
     </div>
