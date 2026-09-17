@@ -285,16 +285,17 @@ export default function App() {
                     <div>
                       <label style={{ fontSize: '12px', color: '#4a5568' }}>Tipo Utenza / Voce</label>
                       <select 
-                        value={billForm.type} 
-                        onChange={e => setBillForm({ ...billForm, type: e.target.value })}
-                        style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e0' }}
-                      >
-                        <option value="Luce">Luce</option>
-                        <option value="Gas">Gas</option>
-                        <option value="Acqua">Acqua</option>
-                        <option value="Internet">Internet</option>
-                        <option value="Assicurazione Casa">Assicurazione Casa</option>
-                      </select>
+  value={billForm.type} 
+  onChange={e => setBillForm({ ...billForm, type: e.target.value })}
+  style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e0' }}
+>
+  <option value="Luce">Luce</option>
+  <option value="Gas">Gas</option>
+  <option value="Acqua">Acqua</option>
+  <option value="Internet">Internet</option>
+  <option value="TARI">TARI</option> {/* <-- Aggiungi questa riga */}
+  <option value="Assicurazione Casa">Assicurazione Casa</option>
+</select>
                     </div>
 
                     <div>
