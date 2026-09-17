@@ -39,6 +39,7 @@ export default function App() {
       const { data: paymentsData, error: pErr } = await supabase.from('payments').select('*').order('id');
       if (pErr) throw pErr;
       if (paymentsData) setPayments(paymentsData);
+      console.log("Pagamenti scaricati da Supabase:", paymentsData);
       
     } catch (err: any) {
       console.error("Errore dettagliato:", err);
@@ -506,18 +507,17 @@ export default function App() {
                   📄 Visualizza APE
                 </a>
                 <a 
-                  href="https://vwsvfyneyziytdmxkxgi.supabase.co/storage/v1/object/public/documenti-immobile/VISURA%20CATASTALE.pdf" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{ backgroundColor: '#edf2f7', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', color: '#2b6cb0', fontSize: '13px', fontWeight: '500', border: '1px solid #e2e8f0' }}
-                >
-                  📄 Visualizza Visura Catastale
-                </a>
-              </div>
+                href="https://vwsvfyneyziytdmxkxgi.supabase.co/storage/v1/object/public/documenti-immobile/VISURA%20CATASTALE.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ backgroundColor: '#edf2f7', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', color: '#2b6cb0', fontSize: '13px', fontWeight: '500', border: '1px solid #e2e8f0' }}
+              >
+                📄 Visualizza Visura Catastale
+              </a>
             </div>
-
           </div>
-        )}
+        </div>
+      )}
 
       </div>
     </div>
