@@ -79,7 +79,7 @@ export default function App() {
     const paymentToUpdate = payments.find(p => p.id === monthId);
     if (!paymentToUpdate) return;
 
-    let publicUrl = paymentToUpdate.utility_file_url;
+    let publicUrl = "";
     const fileInput = (document.getElementById('pdf-file-input') as HTMLInputElement)?.files?.[0];
 
     if (fileInput) {
@@ -100,49 +100,41 @@ export default function App() {
       publicUrl = publicURLData.publicUrl;
     }
 
-    const newUtility = Number(paymentToUpdate.utility_amount) + share;
+    const newUtility = Number(paymentToUpdate.utility_amount || 0) + share;
     const newTotal = Number(paymentToUpdate.rent_amount) + newUtility;
 
-    const { error } = await supabase
+    const { error: billError } = await supabase.from('bills').insert([
+      {
+        payment_id: monthId,
+        utility_type: billForm.type,
+        total_bill_amount: parseFloat(billForm.billAmount) || share,
+        tenant_share: share,
+        file_url: publicUrl
+      }
+    ]);
+
+    if (billError) {
+      alert("Errore nel salvataggio della bolletta: " + billError.message);
+      return;
+    }
+
+    const { error: paymentError } = await supabase
       .from('payments')
       .update({ 
         utility_amount: newUtility, 
-        total: newTotal, 
-        utility_file_url: publicUrl 
+        total: newTotal
       })
       .eq('id', monthId);
 
-    if (!error) {
-      await supabase.from('bills').insert([
-        {
-          payment_id: monthId,
-          utility_type: billForm.type,
-          total_bill_amount: parseFloat(billForm.billAmount) || share,
-          tenant_share: share,
-          file_url: publicUrl
-        }
-      ]);
-
-      alert("Documento caricato e collegato con successo in automatico!");
+    if (!paymentError) {
+      alert("Documento caricato e aggiunto con successo!");
       fetchData();
       setBillForm({ type: "Luce", billAmount: "", tenantShare: "", selectedMonthId: "", fileName: null });
       const fileInputEl = document.getElementById('pdf-file-input') as HTMLInputElement;
       if (fileInputEl) fileInputEl.value = "";
     } else {
-      alert("Errore nel salvataggio su database: " + error.message);
+      alert("Errore nell'aggiornamento del pagamento: " + paymentError.message);
     }
-  };
-
-  const togglePaymentStatus = async (id: number, currentStatus: string) => {
-    const newStatus = currentStatus === "Pagato" ? "In attesa" : "Pagato";
-    const payDate = newStatus === "Pagato" ? new Date().toISOString().split('T')[0] : null;
-
-    const { error } = await supabase
-      .from('payments')
-      .update({ status: newStatus, pay_date: payDate })
-      .eq('id', id);
-
-    if (!error) fetchData();
   };
 
   const generatePDF = (payment: any) => {
