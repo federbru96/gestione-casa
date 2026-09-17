@@ -396,9 +396,9 @@ export default function App() {
                       <td style={{ padding: '12px 8px' }}>€ {p.rent_amount}</td>
                       <td style={{ padding: '12px 8px' }}>€ {p.utility_amount}</td>
                       <td style={{ padding: '12px 8px' }}>
-                        {((p.bills && p.bills.length > 0) || p.utility_file_url) ? (
+                        {p.bills && p.bills.length > 0 ? (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            {p.bills && p.bills.map((b: any, idx: number) => (
+                            {p.bills.map((b: any, idx: number) => (
                               <a 
                                 key={idx}
                                 href={b.file_url} 
@@ -409,16 +409,6 @@ export default function App() {
                                 <Paperclip size={12} /> {b.utility_type} (€ {b.tenant_share})
                               </a>
                             ))}
-                            {p.utility_file_url && (!p.bills || !p.bills.some((b: any) => b.file_url === p.utility_file_url)) && (
-                              <a 
-                                href={p.utility_file_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#2b6cb0', textDecoration: 'none' }}
-                              >
-                                <Paperclip size={12} /> Documento Precedente
-                              </a>
-                            )}
                           </div>
                         ) : (
                           <span style={{ color: '#a0aec0', fontSize: '12px' }}>—</span>
@@ -490,9 +480,9 @@ export default function App() {
                     <td style={{ padding: '14px 8px' }}>{p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}</td>
                     
                     <td style={{ padding: '14px 8px' }}>
-                      {((p.bills && p.bills.length > 0) || p.utility_file_url) ? (
+                      {p.bills && p.bills.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          {p.bills && p.bills.map((b: any, idx: number) => (
+                          {p.bills.map((b: any, idx: number) => (
                             <a 
                               key={idx}
                               href={b.file_url} 
@@ -503,16 +493,6 @@ export default function App() {
                               <Paperclip size={14} /> {b.utility_type} (€ {b.tenant_share})
                             </a>
                           ))}
-                          {p.utility_file_url && (!p.bills || !p.bills.some((b: any) => b.file_url === p.utility_file_url)) && (
-                            <a 
-                              href={p.utility_file_url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              style={{ color: '#3182ce', textDecoration: 'none', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}
-                            >
-                              <Paperclip size={14} /> Documento Precedente
-                            </a>
-                          )}
                         </div>
                       ) : (
                         <span style={{ color: '#a0aec0', fontSize: '12px' }}>—</span>
