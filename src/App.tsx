@@ -36,10 +36,14 @@ export default function App() {
       if (tErr) throw tErr;
       if (tenantData) setContract(tenantData);
 
-      const { data: paymentsData, error: pErr } = await supabase.from('payments').select('*').order('id');
+      // Scarichiamo i pagamenti e facciamo il join con la tabella delle bollette
+      const { data: paymentsData, error: pErr } = await supabase
+        .from('payments')
+        .select('*, bills(*)')
+        .order('id');
+        
       if (pErr) throw pErr;
       if (paymentsData) setPayments(paymentsData);
-      console.log("Pagamenti scaricati da Supabase:", paymentsData);
       
     } catch (err: any) {
       console.error("Errore dettagliato:", err);
