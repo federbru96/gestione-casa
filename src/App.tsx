@@ -272,24 +272,24 @@ export default function App() {
         fontFamily: 'sans-serif',
         backgroundColor: '#f4f6f8',
         minHeight: '100vh',
-        padding: '24px',
+        padding: '16px',
       }}
     >
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <header
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '24px',
+            flexDirection: 'column',
+            gap: '12px',
+            marginBottom: '20px',
             backgroundColor: 'white',
-            padding: '16px 20px',
+            padding: '16px',
             borderRadius: '8px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
           }}
         >
           <div>
-            <h1 style={{ fontSize: '22px', margin: 0, color: '#1a202c' }}>
+            <h1 style={{ fontSize: '20px', margin: 0, color: '#1a202c' }}>
               {viewMode === 'owner'
                 ? 'Gestione Affitto Transitorio (Proprietario)'
                 : 'Area Personale Inquilino'}
@@ -298,7 +298,7 @@ export default function App() {
               style={{
                 color: '#718096',
                 margin: '4px 0 0 0',
-                fontSize: '14px',
+                fontSize: '13px',
               }}
             >
               {contract?.address} — {contract?.tenant_name}
@@ -312,6 +312,7 @@ export default function App() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '6px',
                   backgroundColor: '#319795',
                   color: 'white',
@@ -321,6 +322,7 @@ export default function App() {
                   cursor: 'pointer',
                   fontWeight: 'bold',
                   fontSize: '13px',
+                  width: '100%',
                 }}
               >
                 <User size={16} /> Torna a Vista Inquilino
@@ -331,6 +333,7 @@ export default function App() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: '6px',
                   backgroundColor: '#2d3748',
                   color: 'white',
@@ -340,6 +343,7 @@ export default function App() {
                   cursor: 'pointer',
                   fontWeight: 'bold',
                   fontSize: '13px',
+                  width: '100%',
                 }}
               >
                 <Lock size={16} /> Accesso Proprietario (PIN)
@@ -361,6 +365,7 @@ export default function App() {
               justifyContent: 'center',
               alignItems: 'center',
               zIndex: 1000,
+              padding: '16px',
             }}
           >
             <div
@@ -368,7 +373,8 @@ export default function App() {
                 backgroundColor: 'white',
                 padding: '24px',
                 borderRadius: '8px',
-                width: '320px',
+                width: '100%',
+                maxWidth: '320px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}
             >
@@ -453,8 +459,8 @@ export default function App() {
           <>
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                display: 'flex',
+                flexDirection: 'column',
                 gap: '20px',
                 marginBottom: '24px',
               }}
@@ -535,8 +541,8 @@ export default function App() {
                 >
                   <div
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
+                      display: 'flex',
+                      flexDirection: 'column',
                       gap: '10px',
                     }}
                   >
@@ -551,7 +557,7 @@ export default function App() {
                         }
                         style={{
                           width: '100%',
-                          padding: '6px',
+                          padding: '8px',
                           borderRadius: '4px',
                           border: '1px solid #cbd5e0',
                         }}
@@ -581,7 +587,7 @@ export default function App() {
                         }
                         style={{
                           width: '100%',
-                          padding: '6px',
+                          padding: '8px',
                           borderRadius: '4px',
                           border: '1px solid #cbd5e0',
                         }}
@@ -600,8 +606,8 @@ export default function App() {
 
                   <div
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
+                      display: 'flex',
+                      flexDirection: 'column',
                       gap: '10px',
                     }}
                   >
@@ -622,7 +628,7 @@ export default function App() {
                         }
                         style={{
                           width: '100%',
-                          padding: '6px',
+                          padding: '8px',
                           borderRadius: '4px',
                           border: '1px solid #cbd5e0',
                         }}
@@ -645,7 +651,7 @@ export default function App() {
                         }
                         style={{
                           width: '100%',
-                          padding: '6px',
+                          padding: '8px',
                           borderRadius: '4px',
                           border: '1px solid #cbd5e0',
                         }}
@@ -658,6 +664,7 @@ export default function App() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
+                      marginTop: '4px',
                     }}
                   >
                     <label
@@ -666,7 +673,7 @@ export default function App() {
                         alignItems: 'center',
                         gap: '6px',
                         backgroundColor: '#edf2f7',
-                        padding: '6px 12px',
+                        padding: '8px 12px',
                         borderRadius: '4px',
                         cursor: 'pointer',
                         fontSize: '12px',
@@ -702,11 +709,11 @@ export default function App() {
                       backgroundColor: '#3182ce',
                       color: 'white',
                       border: 'none',
-                      padding: '8px',
+                      padding: '10px',
                       borderRadius: '4px',
                       cursor: 'pointer',
                       fontWeight: 'bold',
-                      marginTop: '4px',
+                      marginTop: '8px',
                     }}
                   >
                     Salva nel Database
@@ -718,141 +725,132 @@ export default function App() {
             <div
               style={{
                 backgroundColor: 'white',
-                padding: '20px',
+                padding: '16px',
                 borderRadius: '8px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                overflowX: 'auto',
               }}
             >
-              <h2 style={{ fontSize: '18px', margin: '0 0 16px 0', color: '#2d3748' }}>
-                Registro Pagamenti, Bollette & Ricevute (Gestione)
+              <h2 style={{ fontSize: '16px', margin: '0 0 16px 0', color: '#2d3748' }}>
+                Registro Pagamenti & Bollette (Gestione)
               </h2>
 
-              <table
-                style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  textAlign: 'left',
-                }}
-              >
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: '2px solid #edf2f7',
-                      color: '#718096',
-                      fontSize: '14px',
-                    }}
-                  >
-                    <th style={{ padding: '12px 8px' }}>Mese</th>
-                    <th style={{ padding: '12px 8px' }}>Canone</th>
-                    <th style={{ padding: '12px 8px' }}>Utenze</th>
-                    <th style={{ padding: '12px 8px' }}>Allegati Singoli</th>
-                    <th style={{ padding: '12px 8px' }}>Totale</th>
-                    <th style={{ padding: '12px 8px' }}>Stato</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'right' }}>
-                      Azione / Ricevuta
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((p) => {
-                    const monthBills = billsMap[p.id] || [];
-                    return (
-                      <tr
-                        key={p.id}
-                        style={{
-                          borderBottom: '1px solid #edf2f7',
-                          fontSize: '14px',
-                        }}
-                      >
-                        <td style={{ padding: '12px 8px', fontWeight: '500' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {payments.map((p) => {
+                  const monthBills = billsMap[p.id] || [];
+                  return (
+                    <div
+                      key={p.id}
+                      style={{
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '14px',
+                        backgroundColor: '#f8fafc',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>
                           {p.month}
-                        </td>
-                        <td style={{ padding: '12px 8px' }}>€ {p.rent_amount}</td>
-                        <td style={{ padding: '12px 8px' }}>
-                          € {p.utility_amount}
-                        </td>
-                        <td style={{ padding: '12px 8px' }}>
-                          {monthBills.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              {monthBills.map((b) => (
-                                <a
-                                  key={b.id}
-                                  href={b.file_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    fontSize: '11px',
-                                    color: '#2b6cb0',
-                                    textDecoration: 'none',
-                                    backgroundColor: '#ebf8ff',
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    width: 'fit-content'
-                                  }}
-                                >
-                                  <Paperclip size={10} /> {b.utility_type} (€ {b.tenant_share})
-                                </a>
-                              ))}
-                            </div>
-                          ) : (
-                            <span style={{ color: '#a0aec0', fontSize: '12px' }}>
-                              —
-                            </span>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>
-                          € {p.total}
-                        </td>
-                        <td style={{ padding: '12px 8px' }}>
-                          <span
-                            onClick={() => togglePaymentStatus(p.id, p.status)}
+                        </span>
+                        <span
+                          onClick={() => togglePaymentStatus(p.id, p.status)}
+                          style={{
+                            cursor: 'pointer',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            backgroundColor: p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
+                            color: p.status === 'Pagato' ? '#22543d' : '#744210',
+                          }}
+                        >
+                          {p.status} (Cambia)
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '12px', borderTop: '1px solid #edf2f7', borderBottom: '1px solid #edf2f7', padding: '6px 0' }}>
+                        <div>
+                          <span style={{ color: '#718096', display: 'block', fontSize: '10px' }}>Canone</span>
+                          <strong>€ {p.rent_amount}</strong>
+                        </div>
+                        <div>
+                          <span style={{ color: '#718096', display: 'block', fontSize: '10px' }}>Utenze</span>
+                          <strong>€ {p.utility_amount}</strong>
+                        </div>
+                        <div>
+                          <span style={{ color: '#718096', display: 'block', fontSize: '10px' }}>Totale</span>
+                          <strong style={{ color: '#3182ce' }}>€ {p.total}</strong>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#4a5568', display: 'block', marginBottom: '4px' }}>
+                          Allegati Singoli:
+                        </span>
+                        {monthBills.length > 0 ? (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {monthBills.map((b) => (
+                              <a
+                                key={b.id}
+                                href={b.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  fontSize: '11px',
+                                  color: '#2b6cb0',
+                                  textDecoration: 'none',
+                                  backgroundColor: '#ebf8ff',
+                                  border: '1px solid #bee3f8',
+                                  padding: '3px 6px',
+                                  borderRadius: '4px',
+                                }}
+                              >
+                                <Paperclip size={10} /> {b.utility_type} (€ {b.tenant_share})
+                              </a>
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={{ color: '#a0aec0', fontSize: '11px' }}>—</span>
+                        )}
+                      </div>
+
+                      <div>
+                        {p.status === 'Pagato' ? (
+                          <button
+                            onClick={() => generatePDF(p)}
                             style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              backgroundColor: '#edf2f7',
+                              color: '#2d3748',
+                              border: 'none',
+                              padding: '6px 10px',
+                              borderRadius: '4px',
                               cursor: 'pointer',
-                              padding: '4px 8px',
-                              borderRadius: '12px',
                               fontSize: '12px',
-                              backgroundColor:
-                                p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
-                              color:
-                                p.status === 'Pagato' ? '#22543d' : '#744210',
+                              width: '100%',
                             }}
                           >
-                            {p.status} (Clicca)
+                            <Download size={14} /> Scarica PDF Ricevuta
+                          </button>
+                        ) : (
+                          <span style={{ color: '#a0aec0', fontSize: '11px', fontStyle: 'italic', display: 'block', textAlign: 'center' }}>
+                            In attesa di saldo per la ricevuta
                           </span>
-                        </td>
-                        <td style={{ padding: '12px 8px', textAlign: 'right' }}>
-                          {p.status === 'Pagato' ? (
-                            <button
-                              onClick={() => generatePDF(p)}
-                              style={{
-                                display: 'inline-flex',
-                                alignContent: 'center',
-                                alignItems: 'center',
-                                gap: '4px',
-                                backgroundColor: '#edf2f7',
-                                color: '#2d3748',
-                                border: 'none',
-                                padding: '6px 10px',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              <Download size={14} /> PDF Ricevuta
-                            </button>
-                          ) : (
-                            <span style={{ color: '#a0aec0', fontSize: '12px' }}>
-                              In attesa
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </>
         )}
@@ -861,7 +859,7 @@ export default function App() {
           <div
             style={{
               backgroundColor: 'white',
-              padding: '24px',
+              padding: '16px',
               borderRadius: '8px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}
@@ -893,140 +891,130 @@ export default function App() {
               </div>
             </div>
 
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                textAlign: 'left',
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    borderBottom: '2px solid #edf2f7',
-                    color: '#718096',
-                    fontSize: '14px',
-                  }}
-                >
-                  <th style={{ padding: '12px 8px' }}>Mese</th>
-                  <th style={{ padding: '12px 8px' }}>Canone</th>
-                  <th style={{ padding: '12px 8px' }}>Utenze / Extra</th>
-                  <th style={{ padding: '12px 8px' }}>Bollette Separate</th>
-                  <th style={{ padding: '12px 8px' }}>Totale</th>
-                  <th style={{ padding: '12px 8px' }}>Stato Pagamento</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'right' }}>
-                    Scarica Ricevuta
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((p) => {
-                  const monthBills = billsMap[p.id] || [];
-                  return (
-                    <tr
-                      key={p.id}
-                      style={{
-                        borderBottom: '1px solid #edf2f7',
-                        fontSize: '14px',
-                      }}
-                    >
-                      <td style={{ padding: '14px 8px', fontWeight: '500' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {payments.map((p) => {
+                const monthBills = billsMap[p.id] || [];
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      backgroundColor: '#f8fafc',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#1a202c' }}>
                         {p.month}
-                      </td>
-                      <td style={{ padding: '14px 8px' }}>€ {p.rent_amount}</td>
-                      <td style={{ padding: '14px 8px' }}>
-                        {p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}
-                      </td>
+                      </span>
+                      <span
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          backgroundColor: p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
+                          color: p.status === 'Pagato' ? '#22543d' : '#744210',
+                        }}
+                      >
+                        {p.status}
+                      </span>
+                    </div>
 
-                      <td style={{ padding: '14px 8px' }}>
-                        {monthBills.length > 0 ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            {monthBills.map((b) => (
-                              <a
-                                key={b.id}
-                                href={b.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  color: '#3182ce',
-                                  textDecoration: 'none',
-                                  fontSize: '12px',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  fontWeight: '500',
-                                  backgroundColor: '#ebf8ff',
-                                  padding: '3px 8px',
-                                  borderRadius: '4px',
-                                  width: 'fit-content'
-                                }}
-                              >
-                                <Paperclip size={12} /> Scarica {b.utility_type} (€ {b.tenant_share})
-                              </a>
-                            ))}
-                          </div>
-                        ) : (
-                          <span style={{ color: '#a0aec0', fontSize: '12px' }}>
-                            —
-                          </span>
-                        )}
-                      </td>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '13px', borderTop: '1px solid #edf2f7', borderBottom: '1px solid #edf2f7', padding: '8px 0' }}>
+                      <div>
+                        <span style={{ color: '#718096', display: 'block', fontSize: '11px' }}>Canone</span>
+                        <strong style={{ color: '#2d3748' }}>€ {p.rent_amount}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: '#718096', display: 'block', fontSize: '11px' }}>Utenze</span>
+                        <strong style={{ color: '#2d3748' }}>{p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: '#718096', display: 'block', fontSize: '11px' }}>Totale</span>
+                        <strong style={{ color: '#3182ce' }}>€ {p.total}</strong>
+                      </div>
+                    </div>
 
-                      <td style={{ padding: '14px 8px', fontWeight: 'bold' }}>
-                        € {p.total}
-                      </td>
-                      <td style={{ padding: '14px 8px' }}>
-                        <span
+                    <div>
+                      <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#4a5568', display: 'block', marginBottom: '6px' }}>
+                        Bollette Separate:
+                      </span>
+                      {monthBills.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {monthBills.map((b) => (
+                            <a
+                              key={b.id}
+                              href={b.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                color: '#2b6cb0',
+                                textDecoration: 'none',
+                                fontSize: '12px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontWeight: '500',
+                                backgroundColor: '#ebf8ff',
+                                border: '1px solid #bee3f8',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                              }}
+                            >
+                              <Paperclip size={12} /> Scarica {b.utility_type} (€ {b.tenant_share})
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ color: '#a0aec0', fontSize: '12px' }}>Nessuna bolletta allegata</span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '4px' }}>
+                      {p.status === 'Pagato' ? (
+                        <button
+                          onClick={() => generatePDF(p)}
                           style={{
-                            padding: '4px 10px',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            backgroundColor:
-                              p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
-                            color: p.status === 'Pagato' ? '#22543d' : '#744210',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            backgroundColor: '#319795',
+                            color: 'white',
+                            border: 'none',
+                            padding: '10px 14px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontWeight: '500',
+                            fontSize: '13px',
+                            width: '100%',
                           }}
                         >
-                          {p.status}
+                          <Download size={14} /> Scarica Ricevuta PDF
+                        </button>
+                      ) : (
+                        <span
+                          style={{
+                            color: '#a0aec0',
+                            fontSize: '12px',
+                            fontStyle: 'italic',
+                            width: '100%',
+                            textAlign: 'center',
+                          }}
+                        >
+                          Ricevuta disponibile dopo il saldo
                         </span>
-                      </td>
-                      <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                        {p.status === 'Pagato' ? (
-                          <button
-                            onClick={() => generatePDF(p)}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              backgroundColor: '#319795',
-                              color: 'white',
-                              border: 'none',
-                              padding: '8px 12px',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontWeight: '500',
-                              fontSize: '12px',
-                            }}
-                          >
-                            <Download size={14} /> Scarica Ricevuta PDF
-                          </button>
-                        ) : (
-                          <span
-                            style={{
-                              color: '#a0aec0',
-                              fontSize: '12px',
-                              fontStyle: 'italic',
-                            }}
-                          >
-                            Disponibile dopo il saldo
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
             <div
               style={{
