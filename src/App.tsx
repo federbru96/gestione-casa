@@ -14,6 +14,7 @@ import { supabase } from './supabaseClient';
 export default function App() {
   const [contract, setContract] = useState<any>(null);
   const [payments, setPayments] = useState<any[]>([]);
+  const [billsMap, setBillsMap] = useState<{ [paymentId: number]: any[] }>({});
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -54,6 +55,23 @@ export default function App() {
         .order('id');
       if (pErr) throw pErr;
       if (paymentsData) setPayments(paymentsData);
+
+      const { data: billsData, error: bErr } = await supabase
+        .from('bills')
+        .select('*');
+      if (bErr) throw bErr;
+      
+      if (billsData) {
+        const map: { [paymentId: number]: any[] } = {};
+        billsData.forEach((bill) => {
+          if (!map[bill.payment_id]) {
+            map[bill.payment_id] = [];
+          }
+          map[bill.payment_id].push(bill);
+        });
+        setBillsMap(map);
+      }
+
     } catch (err: any) {
       console.error('Errore dettagliato:', err);
       setErrorMsg(err.message || JSON.stringify(err));
@@ -79,7 +97,7 @@ export default function App() {
     const paymentToUpdate = payments.find((p) => p.id === monthId);
     if (!paymentToUpdate) return;
 
-    let publicUrl = paymentToUpdate.utility_file_url;
+    let publicUrl = '';
     const fileInput = (
       document.getElementById('pdf-file-input') as HTMLInputElement
     )?.files?.[0];
@@ -112,7 +130,6 @@ export default function App() {
       .update({
         utility_amount: newUtility,
         total: newTotal,
-        utility_file_url: publicUrl,
       })
       .eq('id', monthId);
 
@@ -378,7 +395,7 @@ export default function App() {
               >
                 <input
                   type="password"
-                  placeholder="PIN (es. 1234)"
+                  placeholder="PIN"
                   value={enteredPin}
                   onChange={(e) => setEnteredPin(e.target.value)}
                   autoFocus
@@ -543,6 +560,7 @@ export default function App() {
                         <option value="Gas">Gas</option>
                         <option value="Acqua">Acqua</option>
                         <option value="Internet">Internet</option>
+                        <option value="TARI">TARI</option>
                         <option value="Assicurazione Casa">
                           Assicurazione Casa
                         </option>
@@ -569,11 +587,13 @@ export default function App() {
                         }}
                       >
                         <option value="">Seleziona mese...</option>
-                        {payments.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.month}
-                          </option>
-                        ))}
+                        {payments
+                          .filter((p) => p.month !== 'Settembre 2026')
+                          .map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.month}
+                            </option>
+                          ))}
                       </select>
                     </div>
                   </div>
@@ -725,7 +745,7 @@ export default function App() {
                     <th style={{ padding: '12px 8px' }}>Mese</th>
                     <th style={{ padding: '12px 8px' }}>Canone</th>
                     <th style={{ padding: '12px 8px' }}>Utenze</th>
-                    <th style={{ padding: '12px 8px' }}>Allegato</th>
+                    <th style={{ padding: '12px 8px' }}>Allegati Singoli</th>
                     <th style={{ padding: '12px 8px' }}>Totale</th>
                     <th style={{ padding: '12px 8px' }}>Stato</th>
                     <th style={{ padding: '12px 8px', textAlign: 'right' }}>
@@ -734,90 +754,103 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {payments.map((p) => (
-                    <tr
-                      key={p.id}
-                      style={{
-                        borderBottom: '1px solid #edf2f7',
-                        fontSize: '14px',
-                      }}
-                    >
-                      <td style={{ padding: '12px 8px', fontWeight: '500' }}>
-                        {p.month}
-                      </td>
-                      <td style={{ padding: '12px 8px' }}>€ {p.rent_amount}</td>
-                      <td style={{ padding: '12px 8px' }}>
-                        € {p.utility_amount}
-                      </td>
-                      <td style={{ padding: '12px 8px' }}>
-                        {p.utility_file_url ? (
-                          <a
-                            href={p.utility_file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                  {payments.map((p) => {
+                    const monthBills = billsMap[p.id] || [];
+                    return (
+                      <tr
+                        key={p.id}
+                        style={{
+                          borderBottom: '1px solid #edf2f7',
+                          fontSize: '14px',
+                        }}
+                      >
+                        <td style={{ padding: '12px 8px', fontWeight: '500' }}>
+                          {p.month}
+                        </td>
+                        <td style={{ padding: '12px 8px' }}>€ {p.rent_amount}</td>
+                        <td style={{ padding: '12px 8px' }}>
+                          € {p.utility_amount}
+                        </td>
+                        <td style={{ padding: '12px 8px' }}>
+                          {monthBills.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              {monthBills.map((b) => (
+                                <a
+                                  key={b.id}
+                                  href={b.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    fontSize: '11px',
+                                    color: '#2b6cb0',
+                                    textDecoration: 'none',
+                                    backgroundColor: '#ebf8ff',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    width: 'fit-content'
+                                  }}
+                                >
+                                  <Paperclip size={10} /> {b.utility_type} (€ {b.tenant_share})
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            <span style={{ color: '#a0aec0', fontSize: '12px' }}>
+                              —
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>
+                          € {p.total}
+                        </td>
+                        <td style={{ padding: '12px 8px' }}>
+                          <span
+                            onClick={() => togglePaymentStatus(p.id, p.status)}
                             style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              fontSize: '12px',
-                              color: '#2b6cb0',
-                              textDecoration: 'none',
-                            }}
-                          >
-                            <Paperclip size={12} /> Vedi PDF
-                          </a>
-                        ) : (
-                          <span style={{ color: '#a0aec0', fontSize: '12px' }}>
-                            —
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>
-                        € {p.total}
-                      </td>
-                      <td style={{ padding: '12px 8px' }}>
-                        <span
-                          onClick={() => togglePaymentStatus(p.id, p.status)}
-                          style={{
-                            cursor: 'pointer',
-                            padding: '4px 8px',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            backgroundColor:
-                              p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
-                            color:
-                              p.status === 'Pagato' ? '#22543d' : '#744210',
-                          }}
-                        >
-                          {p.status} (Clicca per invertire)
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 8px', textAlign: 'right' }}>
-                        {p.status === 'Pagato' ? (
-                          <button
-                            onClick={() => generatePDF(p)}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              backgroundColor: '#edf2f7',
-                              color: '#2d3748',
-                              border: 'none',
-                              padding: '6px 10px',
-                              borderRadius: '4px',
                               cursor: 'pointer',
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              backgroundColor:
+                                p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
+                              color:
+                                p.status === 'Pagato' ? '#22543d' : '#744210',
                             }}
                           >
-                            <Download size={14} /> PDF Ricevuta
-                          </button>
-                        ) : (
-                          <span style={{ color: '#a0aec0', fontSize: '12px' }}>
-                            In attesa di saldo
+                            {p.status} (Clicca)
                           </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                          {p.status === 'Pagato' ? (
+                            <button
+                              onClick={() => generatePDF(p)}
+                              style={{
+                                display: 'inline-flex',
+                                alignContent: 'center',
+                                alignItems: 'center',
+                                gap: '4px',
+                                backgroundColor: '#edf2f7',
+                                color: '#2d3748',
+                                border: 'none',
+                                padding: '6px 10px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <Download size={14} /> PDF Ricevuta
+                            </button>
+                          ) : (
+                            <span style={{ color: '#a0aec0', fontSize: '12px' }}>
+                              In attesa
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -855,8 +888,7 @@ export default function App() {
                     fontSize: '13px',
                   }}
                 >
-                  Ecco il riepilogo dei tuoi pagamenti e delle ricevute
-                  ufficiali.
+                  Ecco il riepilogo dei tuoi pagamenti e delle bollette divise.
                 </p>
               </div>
             </div>
@@ -879,7 +911,7 @@ export default function App() {
                   <th style={{ padding: '12px 8px' }}>Mese</th>
                   <th style={{ padding: '12px 8px' }}>Canone</th>
                   <th style={{ padding: '12px 8px' }}>Utenze / Extra</th>
-                  <th style={{ padding: '12px 8px' }}>Documento</th>
+                  <th style={{ padding: '12px 8px' }}>Bollette Separate</th>
                   <th style={{ padding: '12px 8px' }}>Totale</th>
                   <th style={{ padding: '12px 8px' }}>Stato Pagamento</th>
                   <th style={{ padding: '12px 8px', textAlign: 'right' }}>
@@ -888,99 +920,111 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {payments.map((p) => (
-                  <tr
-                    key={p.id}
-                    style={{
-                      borderBottom: '1px solid #edf2f7',
-                      fontSize: '14px',
-                    }}
-                  >
-                    <td style={{ padding: '14px 8px', fontWeight: '500' }}>
-                      {p.month}
-                    </td>
-                    <td style={{ padding: '14px 8px' }}>€ {p.rent_amount}</td>
-                    <td style={{ padding: '14px 8px' }}>
-                      {p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}
-                    </td>
+                {payments.map((p) => {
+                  const monthBills = billsMap[p.id] || [];
+                  return (
+                    <tr
+                      key={p.id}
+                      style={{
+                        borderBottom: '1px solid #edf2f7',
+                        fontSize: '14px',
+                      }}
+                    >
+                      <td style={{ padding: '14px 8px', fontWeight: '500' }}>
+                        {p.month}
+                      </td>
+                      <td style={{ padding: '14px 8px' }}>€ {p.rent_amount}</td>
+                      <td style={{ padding: '14px 8px' }}>
+                        {p.utility_amount > 0 ? `€ ${p.utility_amount}` : '—'}
+                      </td>
 
-                    <td style={{ padding: '14px 8px' }}>
-                      {p.utility_file_url ? (
-                        <a
-                          href={p.utility_file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            color: '#3182ce',
-                            textDecoration: 'none',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            fontWeight: '500',
-                          }}
-                        >
-                          <Paperclip size={14} /> Vedi PDF
-                        </a>
-                      ) : (
-                        <span style={{ color: '#a0aec0', fontSize: '12px' }}>
-                          —
-                        </span>
-                      )}
-                    </td>
+                      <td style={{ padding: '14px 8px' }}>
+                        {monthBills.length > 0 ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {monthBills.map((b) => (
+                              <a
+                                key={b.id}
+                                href={b.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  color: '#3182ce',
+                                  textDecoration: 'none',
+                                  fontSize: '12px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  fontWeight: '500',
+                                  backgroundColor: '#ebf8ff',
+                                  padding: '3px 8px',
+                                  borderRadius: '4px',
+                                  width: 'fit-content'
+                                }}
+                              >
+                                <Paperclip size={12} /> Scarica {b.utility_type} (€ {b.tenant_share})
+                              </a>
+                            ))}
+                          </div>
+                        ) : (
+                          <span style={{ color: '#a0aec0', fontSize: '12px' }}>
+                            —
+                          </span>
+                        )}
+                      </td>
 
-                    <td style={{ padding: '14px 8px', fontWeight: 'bold' }}>
-                      € {p.total}
-                    </td>
-                    <td style={{ padding: '14px 8px' }}>
-                      <span
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          backgroundColor:
-                            p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
-                          color: p.status === 'Pagato' ? '#22543d' : '#744210',
-                        }}
-                      >
-                        {p.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 8px', textAlign: 'right' }}>
-                      {p.status === 'Pagato' ? (
-                        <button
-                          onClick={() => generatePDF(p)}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            backgroundColor: '#319795',
-                            color: 'white',
-                            border: 'none',
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontWeight: '500',
-                            fontSize: '12px',
-                          }}
-                        >
-                          <Download size={14} /> Scarica Ricevuta PDF
-                        </button>
-                      ) : (
+                      <td style={{ padding: '14px 8px', fontWeight: 'bold' }}>
+                        € {p.total}
+                      </td>
+                      <td style={{ padding: '14px 8px' }}>
                         <span
                           style={{
-                            color: '#a0aec0',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
                             fontSize: '12px',
-                            fontStyle: 'italic',
+                            fontWeight: 'bold',
+                            backgroundColor:
+                              p.status === 'Pagato' ? '#c6f6d5' : '#feebc8',
+                            color: p.status === 'Pagato' ? '#22543d' : '#744210',
                           }}
                         >
-                          Disponibile dopo il saldo
+                          {p.status}
                         </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td style={{ padding: '14px 8px', textAlign: 'right' }}>
+                        {p.status === 'Pagato' ? (
+                          <button
+                            onClick={() => generatePDF(p)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              backgroundColor: '#319795',
+                              color: 'white',
+                              border: 'none',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontWeight: '500',
+                              fontSize: '12px',
+                            }}
+                          >
+                            <Download size={14} /> Scarica Ricevuta PDF
+                          </button>
+                        ) : (
+                          <span
+                            style={{
+                              color: '#a0aec0',
+                              fontSize: '12px',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            Disponibile dopo il saldo
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
 
