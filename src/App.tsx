@@ -21,7 +21,7 @@ export default function App() {
 
   const [showPinModal, setShowPinModal] = useState(false);
   const [enteredPin, setEnteredPin] = useState('');
-  const CORRECT_PIN = '1234';
+  const CORRECT_PIN = '021296';
 
   const [billForm, setBillForm] = useState({
     type: 'Luce',
