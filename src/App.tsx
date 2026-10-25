@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { supabase } from './supabaseClient';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [contract, setContract] = useState<any>(null);
@@ -1075,6 +1076,7 @@ export default function App() {
           </div>
         )}
       </div>
+      <Analytics />
     </div>
   );
 }
