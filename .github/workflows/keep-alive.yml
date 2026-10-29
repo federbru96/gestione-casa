@@ -1,0 +1,30 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Esegue il ping ogni 3 giorni a mezzanotte UTC
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase API
+        run: |
+          # Rimuove l'eventuale slash finale dall'URL del secret
+          CLEAN_URL=$(echo "${{ secrets.SUPABASE_URL }}" | sed 's/\/*$//')
+          
+          # Ping verso l'endpoint di Health Check
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${CLEAN_URL}/auth/v1/health" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          echo "Supabase Response Status: $status_code"
+          
+          if [ "$status_code" -eq 200 ]; then
+            echo "Database e servizi Supabase contattati con successo!"
+            exit 0
+          else
+            echo "Errore durante la chiamata API (Status code: $status_code)"
+            exit 1
+          fi
